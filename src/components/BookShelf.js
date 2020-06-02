@@ -1,3 +1,5 @@
+//Component that renders each book shelf with books on the main page
+
 import React from "react";
 import Book from "./Book";
 
@@ -9,8 +11,6 @@ class BookShelf extends React.Component {
   componentDidMount() {}
 
   render() {
-    console.log(this.props);
-
     return (
       <div className="bookshelf">
         <h2 className="bookshelf-title">{this.props.shelf}</h2>

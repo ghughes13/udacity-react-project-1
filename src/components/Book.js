@@ -1,3 +1,5 @@
+// Component to render each individual book
+
 import React from "react";
 
 class Book extends React.Component {
