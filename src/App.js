@@ -4,14 +4,14 @@ import "./App.css";
 import BookShelf from "./components/BookShelf";
 import Book from "./components/Book";
 import BookPlaceholder from "./images/BookPlaceholder.png";
-import { Link, Route } from "react-router-dom";
+import { Link, Route, Switch } from "react-router-dom";
 
 class BooksApp extends React.Component {
   state = {
     books: [],
     showSearchPage: false,
     shelves: ["Currently Reading", "Want To Read", "Read"],
-    query: []
+    queryResults: []
   };
 
   componentDidMount() {
@@ -33,13 +33,32 @@ class BooksApp extends React.Component {
       })
     );
   };
+  
+  clearSearch = () => {
+    this.setState({
+      queryResults: []
+    });
+  }
 
   searchForBook(query) { //Sends search query to back end
-    if(query.length !== 0) {
+    console.log(query)
+    if(query == false || query.length === 0) {
+      this.clearSearch()
+    } else {
       BooksAPI.search(query).then(searchData => {
-        this.setState({
-          query: searchData
-        });
+        console.log(searchData)
+        if(searchData.items === undefined) {
+          searchData.forEach(book => {
+            for(const savedBook of this.state.books) {
+              if(savedBook.id === book.id) {
+                book.shelf = savedBook.shelf
+              }
+            }
+          })
+          this.setState({
+            queryResults: searchData
+          });
+        }
       })
     }
   }
@@ -47,13 +66,14 @@ class BooksApp extends React.Component {
   render() {
     return (
       <div className="app">
+        <Switch>
         <Route
           exact
           path="/search"
           render={() => (
             <div className="search-books">
               <div className="search-books-bar">
-                <Link to="/" className="close-search">
+                <Link to="/" className="close-search" onClick={this.clearSearch}>
                   Close
                 </Link>
                 <div className="search-books-input-wrapper">
@@ -68,8 +88,8 @@ class BooksApp extends React.Component {
               </div>
               <div className="search-books-results">
                 <ol className="books-grid">
-                  {this.state.query && this.state.query.length ? (
-                    this.state.query.map(book => (
+                  {this.state.queryResults && this.state.queryResults.length ? (
+                    this.state.queryResults.map(book => (
                       <Book
                         thumb={
                           book.imageLinks && book.imageLinks.thumbnail
@@ -119,6 +139,8 @@ class BooksApp extends React.Component {
             </div>
           )}
         />
+        <Route render={() => (<h1>404 - Whoops. Looks like that page is not available. <Link to={'/'}>Click Here</Link> to go home</h1>)} />
+        </Switch>
       </div>
     );
   }
